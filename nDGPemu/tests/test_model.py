@@ -1,5 +1,7 @@
 import numpy as np
-from pkg_resources import resource_stream
+from importlib.resources import as_file, files
+
+RESOURCES = files("nDGPemu")
 
 def test_predict(model):
     # set reference parameters
@@ -12,7 +14,8 @@ def test_predict(model):
     z = 1
 
     Bk = model.predict(H0rc,z,cosmo_params)
-    Bk_ref = np.load(resource_stream('nDGPemu','cache/Test_Bk.npy'), allow_pickle=True)
+    with as_file(RESOURCES / "cache/Test_Bk.npy") as myfile:
+        Bk_ref = np.load(myfile, allow_pickle=True)
 
     assert all(abs(Bk-Bk_ref)<1e-7) , f"Test failed: the model could not reproduce the reference boost factor."
 

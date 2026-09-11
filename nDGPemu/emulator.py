@@ -2,8 +2,7 @@
 import joblib
 import pickle as pk
 import numpy as np
-from pkg_resources import resource_stream
-import os
+from importlib.resources import files, as_file, open_binary
 from scipy.interpolate import InterpolatedUnivariateSpline
 
 
@@ -18,6 +17,8 @@ input_bounds = {'H0rc':[0.2,20],
                 'z':[0,2]}
 
 required_params = ['Om', 'ns', 'As', 'h', 'Ob']
+
+RESOURCES = files("nDGPemu")
 
 def rescale_param(cosmo_params,key):
     '''
@@ -40,11 +41,14 @@ def rescale_param(cosmo_params,key):
 class BoostPredictor:
     def __init__(self):
         print ("Loading model and related data")
-        self.model = joblib.load(resource_stream('nDGPemu','/cache/nDGPemu_LC_k5_woSN_PCA3_z2.joblib'))
-        self.table_mean = np.load(resource_stream('nDGPemu','/cache/TableMean.npy'), allow_pickle=True)
-        self.k_vals = np.load(resource_stream('nDGPemu','/cache/k_vals.npy'), allow_pickle=True)
-        with resource_stream('nDGPemu','/cache/pca.pkl') as f:
-            self.pca = pk.load(f)
+        with as_file(RESOURCES / "cache/nDGPemu_LC_k5_woSN_PCA3_z2.joblib") as myfile:
+            self.model = joblib.load(myfile)
+        with as_file(RESOURCES / "cache/TableMean.npy") as myfile:
+            self.table_mean = np.load(myfile, allow_pickle=True)
+        with as_file(RESOURCES / "cache/k_vals.npy") as myfile:
+            self.k_vals = np.load(myfile, allow_pickle=True)
+        mypk = open_binary("nDGPemu.cache", "pca.pkl")
+        self.pca = pk.load(mypk)
     
     def predict(self, H0rc, z, cosmo_params, k_out=None, ext=2):
         '''
