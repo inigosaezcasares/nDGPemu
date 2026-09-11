@@ -17,6 +17,12 @@ classifiers = [
 dependencies = [
   "numpy",
   "scipy",
-  "scikit-learn",
-  "joblib"
+  "scikit-learn<=1.7",
+  "joblib",
+]
+
+[dependency-groups]
+dev = [
+    "ipython",
+    "matplotlib",
 ]
